@@ -1,7 +1,8 @@
 # ProxyWizard [![Python Version](https://img.shields.io/badge/Python-3.6%2B-blue.svg)](https://www.python.org/downloads/release)
 
 ## Images of Usage
-![usage image 1](demo.png)
+![usage image 0](demo.png)
+![usage image 1](demo1.png)
 ![usage image 2](demo2.png)
 ![usage image 3](demo3.png)
 ![usage image 4](demo4.png)
