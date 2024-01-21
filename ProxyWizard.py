@@ -34,14 +34,18 @@ def threadlessCheckProxy(proxy):
 
         # Check if the response status code indicates success
         if response.status_code == 200:
-            goods += 1
             print(f"({Fore.LIGHTGREEN_EX}✔{Fore.RESET})-({Fore.LIGHTGREEN_EX}GOOD{Fore.RESET}-{Fore.LIGHTGREEN_EX}PROXY{Fore.RESET})-({Fore.LIGHTGREEN_EX}{proxy}{Fore.RESET}", end='')
+            with open('good.txt', 'a') as fileWithGoods:
+                fileWithGoods.write(proxy)
+            goods += 1
         else:
-            bads += 1
             print(f"({Fore.RED}✘{Fore.RESET})-({Fore.RED}BAD{Fore.RESET}-{Fore.RED}PROXY{Fore.RESET})-({Fore.RED}{proxy}{Fore.RESET}", end='')
+            with open('bad.txt', 'a') as fileWithBads:
+                fileWithBads.write(proxy)
+            bads += 1
 
     except requests.exceptions.ConnectionError as e:
-        print(f"(✘{Fore.RESET})-({Fore.RED}Error{Fore.RESET})-({Fore.RED}Connection Error{Fore.RESET}")
+        print(f"({Fore.RED}✘{Fore.RESET})-({Fore.RED}Error{Fore.RESET})-({Fore.RED}Connection Error{Fore.RESET}")
         return e
     except requests.exceptions.HTTPError as e:
         print(f"({Fore.RED}✘{Fore.RESET})-({Fore.RED}Error{Fore.RESET})-({Fore.RED}HTTP Error{Fore.RESET}")
@@ -101,18 +105,30 @@ def checkProxies(proxies, num_threads):
             result = future.result()
             if result:
                 print(f"({Fore.RED}✘{Fore.RESET})-({Fore.RED}BAD{Fore.RESET}-{Fore.RED}PROXY{Fore.RESET})-({Fore.RED}{proxy}{Fore.RESET}", end='')
-                with open('bad.txt', 'a') as file_with_bads:
-                    file_with_bads.write(proxy)
+                with open('bad.txt', 'a') as fileWithBads:
+                    fileWithBads.write(proxy)
                 bads += 1
             else:
-                goods += 1
                 print(f"({Fore.LIGHTGREEN_EX}✔{Fore.RESET})-({Fore.LIGHTGREEN_EX}GOOD{Fore.RESET}-{Fore.LIGHTGREEN_EX}PROXY{Fore.RESET})-({Fore.LIGHTGREEN_EX}{proxy}{Fore.RESET}", end='')
+                with open('good.txt', 'a') as fileWithGoods:
+                    fileWithGoods.write(proxy)
+                goods += 1
 
     print("")
     print("")
     print(f"{Fore.LIGHTGREEN_EX} {goods} PROXIES REPLIED ")
     print(f"{Fore.LIGHTRED_EX} {bads} PROXIES DIDN'T REPLY ")
 
+# Scrape proxies
+def getProxies():
+    request = requests.get('https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=1000&country=all&ssl=all&anonymity=all')
+    with open("proxies.txt","wb") as fp:
+        fp.write(request.content)
+        print("")
+        print("")
+        print(f"({Fore.LIGHTGREEN_EX}✔{Fore.RESET})-({Fore.LIGHTGREEN_EX}Success{Fore.RESET})-({Fore.LIGHTGREEN_EX}HTTP Proxies Scraped{Fore.RESET}")
+
+#command logic
 if len(argv) > 1:
     commands = ['--help', '-h', '-f', '-p', '-t', '-rd', '-gp']
     if argv[1] in commands:
@@ -149,10 +165,7 @@ if len(argv) > 1:
             except IndexError:
                 print(f"({Fore.RED}✘{Fore.RESET})-({Fore.RED}Error{Fore.RESET})-({Fore.RED}Missing Proxy Info{Fore.RESET}")
         elif argv[1] == '-gp':
-            request = requests.get('https://api.proxyscrape.com/?request=getproxies&proxytype=http&timeout=1000&country=all&ssl=all&anonymity=all')
-            with open("proxies.txt","wb") as fp:
-                fp.write(request.content)
-                print(f"({Fore.LIGHTGREEN_EX}✔{Fore.RESET})-({Fore.LIGHTGREEN_EX}Success{Fore.RESET})-({Fore.LIGHTGREEN_EX}HTTP Proxies Scraped{Fore.RESET}")
+            getProxies()
         else:
             print(Fore.LIGHTRED_EX + 'Unknown option "' + argv[1] + '"')
     else:
